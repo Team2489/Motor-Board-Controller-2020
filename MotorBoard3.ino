@@ -32,7 +32,19 @@ void setup() {
 
 int pwmFromPot(int pin){
   int val = analogRead(pin);
-  int pwm = map(val, 0, 1024, 0, 180);
+  int pwm;
+  
+  double scale = map(val, 0, 1024, 0, 180);
+  double deadzone = 30; // in degrees
+  double control_range = (180.0 - deadzone) / 2.0;
+
+  if(scale <= control_range)
+    pwm = round(scale * 90 / control_range);
+  else if(scale <= control_range + deadzone)
+    pwm = 0;
+  else
+    pwm = 90 + round((scale - control_range - deadzone) * 90 / control_range);
+
   if (debug){
     Serial.print("pin = ");
     Serial.print(pin);
